@@ -6,6 +6,6 @@
 
 #### About this project
 - This project is an automatic speech recognition application that takes a YouTube video link as input to generate a transcription of the video.
-- Built functions to get the metadata of the video using [pytube](https://github.com/pytube/pytube) and displayed it.
+- Built functions to get the metadata of the video using [pytube](https://github.com/pytube/pytube) and displayed the video.
 - Generated a transcription of the video using the [OpenAI Whisper](https://openai.com/blog/whisper) model.
 - Built the web app using [Streamlit](https://streamlit.io) and deployed it on [Streamlit Cloud](https://share.streamlit.io).
