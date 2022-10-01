@@ -4,4 +4,5 @@ pytube==12.1.0
 requests==2.28.1
 streamlit==1.13.0
 streamlit_lottie==0.0.3
+whisper @ git+https://github.com/openai/whisper.git@8cf36f3508c9acd341a45eb2364239a3d81458b9
 whisper==1.0
