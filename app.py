@@ -9,7 +9,7 @@ from streamlit_lottie import st_lottie
 import numpy as np
 import os
 
-st.set_page_config(page_title="Youtube Transcriber", page_icon="🗣", layout="wide")
+st.set_page_config(page_title="YouTube Transcriber", page_icon="🗣", layout="wide")
 
 
 # Define a function that we can use to load lottie files from a link.
