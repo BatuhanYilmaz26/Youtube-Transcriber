@@ -8,6 +8,9 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 import numpy as np
 import os
+from typing import Iterator
+from io import StringIO
+from utils import write_vtt, write_srt
 
 st.set_page_config(page_title="YouTube Transcriber", page_icon="🗣", layout="wide")
 
@@ -83,7 +86,22 @@ def inference(link):
     yt = YouTube(link)
     path = yt.streams.filter(only_audio=True)[0].download(filename="audio.mp4")
     results = loaded_model.transcribe(path)
-    return results["text"]
+    vtt = getSubs(results["segments"], "vtt", 80)
+    return results["text"], vtt
+
+def getSubs(segments: Iterator[dict], format: str, maxLineWidth: int) -> str:
+    segmentStream = StringIO()
+
+    if format == 'vtt':
+        write_vtt(segments, file=segmentStream, maxLineWidth=maxLineWidth)
+    elif format == 'srt':
+        write_srt(segments, file=segmentStream, maxLineWidth=maxLineWidth)
+    else:
+        raise Exception("Unknown format " + format)
+
+    segmentStream.seek(0)
+    return segmentStream.read()
+
 
 
 def main():
@@ -107,10 +125,10 @@ def main():
                 st.write(description)
             #st.markdown(f"**Video Description**: {description}")
             with st.expander("Video Transcript"):
-                st.write(results)
+                st.write(results[0])
             # Write the results to a .txt file and download it.
             with open("transcript.txt", "w+") as f:
-                f.writelines(results)
+                f.writelines(results[1])
                 f.close()
             with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
                 data = f.read()
