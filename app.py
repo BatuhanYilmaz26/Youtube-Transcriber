@@ -87,7 +87,8 @@ def inference(link):
     path = yt.streams.filter(only_audio=True)[0].download(filename="audio.mp4")
     results = loaded_model.transcribe(path)
     vtt = getSubs(results["segments"], "vtt", 80)
-    return results["text"], vtt
+    srt = getSubs(results["segments"], "srt", 80)
+    return results["text"], vtt, srt
 
 def getSubs(segments: Iterator[dict], format: str, maxLineWidth: int) -> str:
     segmentStream = StringIO()
@@ -101,7 +102,6 @@ def getSubs(segments: Iterator[dict], format: str, maxLineWidth: int) -> str:
 
     segmentStream.seek(0)
     return segmentStream.read()
-
 
 
 def main():
@@ -128,14 +128,41 @@ def main():
                 st.write(results[0])
             # Write the results to a .txt file and download it.
             with open("transcript.txt", "w+") as f:
+                f.writelines(results[0])
+                f.close()
+            with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
+                datatxt = f.read()
+            
+
+            with open("transcript.txt", "w+") as f:
                 f.writelines(results[1])
                 f.close()
             with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
-                data = f.read()
-                if st.download_button(label="Download Transcript",
-                                data=data,
-                                file_name="transcript.txt"):
-                    st.success("Downloaded Successfully!")
+                datavtt = f.read()
+            
+            with open("transcript.txt", "w+") as f:
+                f.writelines(results[2])
+                f.close()
+            with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
+                datasrt = f.read()
+            
+            if st.download_button(label="Download Transcript (.txt)",
+                                data=datatxt,
+                                file_name=f"{title}.txt"):
+                st.success("Downloaded Successfully!")
+            
+            elif st.download_button(label="Download Transcript (.vtt)",
+                                data=datavtt,
+                                file_name=f"{title}.vtt"):
+                st.success("Downloaded Successfully!")
+
+            elif st.download_button(label="Download Transcript (.srt)",
+                                data=datasrt,
+                                file_name=f"{title}.srt"):
+                st.success("Downloaded Successfully!")
+            else:
+                # Keep the page on after the download button is clicked.,
+                st.info("Streamlit refreshes after the download button is clicked. The data is cached so you can download the transcript again without having to transcribe the video again.")
 
 if __name__ == "__main__":
     main()
