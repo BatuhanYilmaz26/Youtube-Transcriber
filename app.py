@@ -14,7 +14,6 @@ from utils import write_vtt, write_srt
 
 st.set_page_config(page_title="YouTube Transcriber", page_icon="🗣", layout="wide")
 
-
 # Define a function that we can use to load lottie files from a link.
 @st.cache(allow_output_mutation=True)
 def load_lottieurl(url: str):
@@ -134,16 +133,16 @@ def main():
                 datatxt = f.read()
             
 
-            with open("transcript.txt", "w+") as f:
+            with open("transcript.vtt", "w+") as f:
                 f.writelines(results[1])
                 f.close()
-            with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
+            with open(os.path.join(os.getcwd(), "transcript.vtt"), "rb") as f:
                 datavtt = f.read()
             
-            with open("transcript.txt", "w+") as f:
+            with open("transcript.srt", "w+") as f:
                 f.writelines(results[2])
                 f.close()
-            with open(os.path.join(os.getcwd(), "transcript.txt"), "rb") as f:
+            with open(os.path.join(os.getcwd(), "transcript.srt"), "rb") as f:
                 datasrt = f.read()
             
             if st.download_button(label="Download Transcript (.txt)",
@@ -161,8 +160,9 @@ def main():
                                 file_name=f"{title}.srt"):
                 st.success("Downloaded Successfully!")
             else:
-                # Keep the page on after the download button is clicked.,
+                st.success("You can download the transcript in .srt format and upload it to YouTube to create subtitles for your video.")
                 st.info("Streamlit refreshes after the download button is clicked. The data is cached so you can download the transcript again without having to transcribe the video again.")
+        
 
 if __name__ == "__main__":
     main()
