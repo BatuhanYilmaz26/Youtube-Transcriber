@@ -31,15 +31,6 @@ with col2:
     st.write("""
     ## Youtube Transcriber 
     ##### This is an app that transcribes YouTube videos into text.""")
-
-
-#def load_model(size):
-    #default_size = size
-    #if size == default_size:
-        #return None
-    #else:
-        #loaded_model = whisper.load_model(size)
-        #return loaded_model 
     
 
 @st.cache(allow_output_mutation=True)
@@ -70,18 +61,17 @@ current_size = "None"
 size = st.selectbox("Model Size", ["tiny", "base", "small", "medium", "large"], index=1)
 
 
+@st.cache(allow_output_mutation=True)
 def change_model(current_size, size):
     if current_size != size:
         loaded_model = whisper.load_model(size)
-        st.write(f"Model is {'multilingual' if loaded_model.is_multilingual else 'English-only'} "
-        f"and has {sum(np.prod(p.shape) for p in loaded_model.parameters()):,} parameters.")
         return loaded_model
     else:
-        return None
+        raise Exception("Model size is the same as the current size.")
 
 
 @st.cache(allow_output_mutation=True)
-def inference(link):
+def inference(link, loaded_model):
     yt = YouTube(link)
     path = yt.streams.filter(only_audio=True)[0].download(filename="audio.mp4")
     results = loaded_model.transcribe(path)
@@ -89,6 +79,8 @@ def inference(link):
     srt = getSubs(results["segments"], "srt", 80)
     return results["text"], vtt, srt
 
+
+@st.cache(allow_output_mutation=True)
 def getSubs(segments: Iterator[dict], format: str, maxLineWidth: int) -> str:
     segmentStream = StringIO()
 
@@ -104,11 +96,13 @@ def getSubs(segments: Iterator[dict], format: str, maxLineWidth: int) -> str:
 
 
 def main():
-    change_model(current_size, size)
+    loaded_model = change_model(current_size, size)
+    st.write(f"Model is {'multilingual' if loaded_model.is_multilingual else 'English-only'} "
+        f"and has {sum(np.prod(p.shape) for p in loaded_model.parameters()):,} parameters.")
     link = st.text_input("YouTube Link")
     if st.button("Transcribe"):
         author, title, description, thumbnail, length, views = populate_metadata(link)
-        results = inference(link)
+        results = inference(link, loaded_model)
             
         col3, col4 = st.columns(2)
         with col3:
